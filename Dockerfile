@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS build
+FROM docker.io/golang:1.24-alpine AS build
 RUN apk add --no-cache alpine-sdk
 
 WORKDIR /app
@@ -10,23 +10,13 @@ COPY . .
 
 RUN CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
 
-FROM alpine:3.20.1 AS prod
+FROM docker.io/alpine:3.20.1 AS prod
+
 WORKDIR /app
 COPY --from=build /app/main /app/main
 EXPOSE ${PORT}
 CMD ["./main"]
 
-
-FROM node:20 AS frontend_builder
-WORKDIR /frontend
-
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/. .
-RUN npm run build
-
-FROM node:23-slim AS frontend
-RUN npm install -g serve
-COPY --from=frontend_builder /frontend/dist /app/dist
-EXPOSE 5173
-CMD ["serve", "-s", "/app/dist", "-l", "5173"]
+FROM nginx:latest AS nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80

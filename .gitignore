@@ -32,3 +32,20 @@ main
 # OS X generated file
 .DS_Store
 
+node_modules
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+README.md
+LICENSE
+.vscode
+Makefile
+helm-charts
+.env
+.editorconfig
+.idea
+coverage*
+db/test.db
+frontend/bun.lock

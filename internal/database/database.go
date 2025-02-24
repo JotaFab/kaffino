@@ -11,6 +11,8 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
+
+	"kaffino/internal/coffeeshop"
 )
 
 // Service represents a service that interacts with a database.
@@ -22,6 +24,12 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+
+	CreateProduct(ctx context.Context, product *coffeeshop.Product) error
+	GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error)
+	ListProducts(ctx context.Context) ([]*coffeeshop.Product, error)
+	UpdateProduct(ctx context.Context, product *coffeeshop.Product) error
+	DeleteProduct(ctx context.Context, id string) error
 }
 
 type service struct {
@@ -44,6 +52,32 @@ func New() Service {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
 		log.Fatal(err)
+	}
+
+	// Create the products table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS products (
+			id TEXT PRIMARY KEY UNIQUE,
+			code TEXT UNIQUE,
+			images TEXT,
+			discount REAL,
+			title TEXT UNIQUE,
+			description TEXT,
+			long_description TEXT,
+			discount_percentage REAL,
+			reviews TEXT,
+			map_size_price TEXT,
+			schedules TEXT,
+			tags TEXT,
+			created_at DATETIME,
+			updated_at DATETIME,
+			stock_quantity INTEGER,
+			sizes TEXT
+		)
+	`)
+	if err != nil {
+		log.Fatalf("error creating products table: %v", err)
+		return nil // Return nil if table creation fails
 	}
 
 	dbInstance = &service{

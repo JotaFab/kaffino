@@ -4,33 +4,32 @@
 all: build test
 
 build:
-	@echo "Building..."
-	
-	
-	@CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
+	@go build -o main cmd/api/main.go
 
 # Run the application
 run:
 	@go run cmd/api/main.go &
-	@npm install --prefer-offline --no-fund --prefix ./frontend
-	@npm run dev --prefix ./frontend
+	@cd frontend && bun install --prefer-offline --no-fund
+	@cd frontend && bun run build && bun run dev
 # Create DB container
 docker-run:
-	@if docker compose up --build 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose up --build; \
-	fi
+	@docker compose down 
+	@if docker compose build 2>/dev/null; then \
+        docker compose up ; \
+    else \
+        echo "Falling back to Docker Compose V1"; \
+        docker-compose up --build; \
+    fi
 
 # Shutdown DB container
 docker-down:
+	@echo "Stopping Docker..."
 	@if docker compose down 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose down; \
-	fi
+        : ; \
+    else \
+        echo "Falling back to Docker Compose V1"; \
+        docker-compose down; \
+    fi
 
 # Test the application
 test:
@@ -44,13 +43,14 @@ clean:
 
 # Live Reload
 watch:
+	@echo "Watching..."
 	@if command -v air > /dev/null; then \
             air; \
             echo "Watching...";\
         else \
             read -p "Go's 'air' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
             if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-                go install github.com/air-verse/air@latest; \
+                go install github.com/cosmtrek/air@latest; \
                 air; \
                 echo "Watching...";\
             else \

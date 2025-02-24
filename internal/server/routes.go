@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
 	"fmt"
 	"time"
 
@@ -21,7 +20,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.HandleFunc("/websocket", s.websocketHandler)
 
-	// Wrap the mux with CORS middleware
+	mux.HandleFunc("POST /product", s.createProductHandler)
+	mux.HandleFunc("GET /product/{id}", s.listProductsHandler)
+	mux.HandleFunc("GET /products", s.listProductsHandler)
+	mux.HandleFunc("PUT /product/{id}", s.updateProductHandler)
+	mux.HandleFunc("DELETE /product/{id}", s.deleteProductHandler)
+	// Wrap the mux with CORS middleware}
 	return s.corsMiddleware(mux)
 }
 

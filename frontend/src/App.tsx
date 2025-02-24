@@ -6,14 +6,6 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
 
-  const fetchData = () => {
-    fetch(`http://localhost:${import.meta.env.VITE_PORT}/`)
-      .then(response => response.text())
-      .then(data => setMessage(data))
-      .catch(error => console.error('Error fetching data:', error))
-  }
-  const [message, setMessage] = useState<string>('')
-
   return (
     <>
       <div>
@@ -36,15 +28,6 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      <button onClick={fetchData}>
-        Click to fetch from Go server
-      </button>
-      {message && (
-        <div>
-          <h2>Server Response:</h2>
-          <p>{message}</p>
-        </div>
-      )}
     </>
   )
 }
