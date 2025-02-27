@@ -1,10 +1,10 @@
 package database
 
 import (
-	"encoding/json"
+	"context"
 	"log"
 
-	"github.com/google/uuid"
+	"kaffino/internal/coffeeshop"
 )
 
 // dbInit checks if the products table exists and creates it if it doesn't.
@@ -115,56 +115,60 @@ func (s *service) populateInventoryTable() error {
 	if !tablePopulated {
 		log.Println("Inventory table is not populated, inserting product data...")
 
-		// SQL statement to insert products into the inventory table
-		insertTablesSQL := `
-			INSERT INTO inventory (id, code, images, title, description, long_description, discount, reviews, map_size_price, schedules, tags, stock_quantity, sizes)
-			VALUES
-				($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-		`
-
-		// Generate UUIDs for the products
-		id1 := uuid.New().String()
-		id2 := uuid.New().String()
-		id3 := uuid.New().String()
-
-		// Define size-price maps for the products
-		mapSizePrice1 := map[string]float64{"Half Bag (6oz)": 9.00, "Full Bag (12oz)": 18.00}
-		mapSizePrice2 := map[string]float64{"Small": 12.00, "Medium": 22.00, "Large": 30.00}
-		mapSizePrice3 := map[string]float64{"12oz": 15.00, "1lb": 25.00}
-
-		// Marshal the maps to JSON strings
-		mapSizePrice1JSON, _ := json.Marshal(mapSizePrice1)
-		mapSizePrice2JSON, _ := json.Marshal(mapSizePrice2)
-		mapSizePrice3JSON, _ := json.Marshal(mapSizePrice3)
-
-		// Define sizes for the products
-		sizes1 := "Half Bag (6oz),Full Bag (12oz)"
-		sizes2 := "Small,Medium,Large"
-		sizes3 := "12oz,1lb"
-
-		// Execute the insert tables SQL statement
-		_, err = s.db.Exec(insertTablesSQL,
-			id1, "BEAN001", "whole_bean.jpg", "Peruvian Whole Bean Coffee", "High-altitude Arabica beans, perfect for home roasting.", "Experience the rich and complex flavors of our Peruvian Whole Bean Coffee. Sourced from the high-altitude regions of Peru, these Arabica beans are perfect for home roasting, allowing you to customize your coffee experience to your exact preferences.", 0.00, "", mapSizePrice1JSON, "", "coffee,beans,whole", 100, sizes1)
-
-		if err != nil {
-			log.Println("Error inserting product data:", err)
-			return err
+		// Define products
+		products := []coffeeshop.Product{
+			{
+				Code:               "BEAN001",
+				Images:             []string{"whole_bean1.jpg", "whole_bean2.jpg"},
+				Discount:	 0.00,
+				Title:              "Peruvian Whole Bean Coffee",
+				Description:        "High-altitude Arabica beans, perfect for home roasting.",
+				LongDescription:    "Experience the rich and complex flavors of our Peruvian Whole Bean Coffee. Sourced from the high-altitude regions of Peru, these Arabica beans are perfect for home roasting, allowing you to customize your coffee experience to your exact preferences.",
+				Reviews:            []string{"Great taste!"},
+				MapSizePrice:       map[string]float64{"Half Bag (6oz)": 9.00, "Full Bag (12oz)": 18.00},
+				Schedules:          []string{"Morning", "Afternoon"},
+				Tags:               []string{"coffee", "beans", "whole"},
+				StockQuantity:      100,
+				Sizes:              []string{"Half Bag (6oz)", "Full Bag (12oz)"},
+			},
+			{
+				Code:               "DRINK001",
+				Images:             []string{"cappuccino1.jpg", "cappuccino2.jpg"},
+				Discount:           2.50,
+				Title:              "Classic Cappuccino",
+				Description:        "Espresso with steamed milk and foamed milk.",
+				LongDescription:    "A perfectly balanced cappuccino with rich espresso, steamed milk, and a delicate layer of foamed milk. A classic choice for any coffee lover.",
+				Reviews:            []string{"Perfect for a morning boost."},
+				MapSizePrice:       map[string]float64{"Small": 12.00, "Medium": 22.00, "Large": 30.00},
+				Schedules:          []string{"Anytime"},
+				Tags:               []string{"coffee", "cappuccino", "classic"},
+				StockQuantity:      50,
+				Sizes:              []string{"Small", "Medium", "Large"},
+			},
+			{
+				Code:               "BLEND002",
+				Images:             []string{"signature_blend1.jpg", "signature_blend2.jpg"},
+				Title:              "Kaffino Signature Blend",
+				Description:        "A unique blend of Peruvian and Ethiopian beans.",
+				LongDescription:    "Our signature blend combines the best of Peruvian and Ethiopian beans, creating a harmonious balance of flavors with notes of chocolate and citrus. Perfect for any time of day.",
+				Discount:           5.00,
+				Reviews:            []string{"My favorite blend."},
+				MapSizePrice:       map[string]float64{"12oz": 15.00, "1lb": 25.00},
+				Schedules:          []string{"Evening"},
+				Tags:               []string{"coffee", "blend", "signature"},
+				StockQuantity:      75,
+				Sizes:              []string{"12oz", "1lb"},
+			},
 		}
 
-		_, err = s.db.Exec(insertTablesSQL,
-			id2, "DRINK001", "cappuccino.jpg", "Classic Cappuccino", "Espresso with steamed milk and foamed milk.", "A perfectly balanced cappuccino with rich espresso, steamed milk, and a delicate layer of foamed milk. A classic choice for any coffee lover.", 2.50, "", mapSizePrice2JSON, "", "coffee,cappuccino,classic", 50, sizes2)
-
-		if err != nil {
-			log.Println("Error inserting product data:", err)
-			return err
-		}
-
-		_, err = s.db.Exec(insertTablesSQL,
-			id3, "BLEND002", "signature_blend.jpg", "Kaffino Signature Blend", "A unique blend of Peruvian and Ethiopian beans.", "Our signature blend combines the best of Peruvian and Ethiopian beans, creating a harmonious balance of flavors with notes of chocolate and citrus. Perfect for any time of day.", 5.00, "", mapSizePrice3JSON, "", "coffee,blend,signature", 75, sizes3)
-
-		if err != nil {
-			log.Println("Error inserting product data:", err)
-			return err
+		// Insert products using CreateProduct method
+		for _, product := range products {
+			product.NewProduct()
+			err := s.CreateProduct(context.Background(), &product)
+			if err != nil {
+				log.Println("Error inserting product data:", err)
+				return err
+			}
 		}
 
 		log.Println("Inventory table populated successfully.")

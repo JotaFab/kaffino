@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,13 +13,15 @@ export const Navbar: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex-shrink-0 flex items-center">
-                        <img
-                            alt="Company logo with placeholder text 'Logo'"
-                            className="h-8 w-auto"
-                            height="40"
-                            src="https://storage.googleapis.com/a1aa/image/kslKXCnxdVEwxwUEiHe8nG2gvJGXnl7lF8y7OYBzec0.jpg"
-                            width="100"
-                        />
+                        <Link to="/">
+                            <img
+                                alt="Company logo with placeholder text 'Logo'"
+                                className="h-8 w-auto"
+                                height="40"
+                                src="https://storage.googleapis.com/a1aa/image/kslKXCnxdVEwxwUEiHe8nG2gvJGXnl7lF8y7OYBzec0.jpg"
+                                width="100"
+                            />
+                        </Link>
                     </div>
                     <div className="hidden md:flex md:items-center md:space-x-4">
                         <a
@@ -53,12 +56,12 @@ export const Navbar: React.FC = () => {
                         </a>
                     </div>
                     <div className="flex items-center">
-                        <button className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 mr-4">
+                        <Link to="/cart" className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 mr-4">
                             <i className="fas fa-shopping-cart"></i>
-                        </button>
-                        <button className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 mr-4">
+                        </Link>
+                        <Link to="/login" className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 mr-4">
                             <i className="fas fa-user"></i>
-                        </button>
+                        </Link>
 
                         <button
                             className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 md:hidden"
