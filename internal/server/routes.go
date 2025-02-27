@@ -23,13 +23,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("/websocket", s.websocketHandler)
 
 	mux.HandleFunc("POST /product", s.createProductHandler)
-	mux.HandleFunc("GET /product/{id}", s.listProductsHandler)
-	mux.HandleFunc("GET /products", s.listProductsHandler)
+	mux.HandleFunc("GET /product/{id}", s.getProductByIDHandler)
 	mux.HandleFunc("PUT /product/{id}", s.updateProductHandler)
 	mux.HandleFunc("DELETE /product/{id}", s.deleteProductHandler)
+	mux.HandleFunc("GET /products", s.listProductsHandler)
 
 	// OTP, login route
-	mux.HandleFunc("/login", auth.LoginHandler)
+	mux.HandleFunc("POST /login", auth.LoginHandler)
 	mux.HandleFunc("POST /verify-otp", auth.VerifyOTPHandler)
 	mux.HandleFunc("GET /logout", auth.LogoutHandler)
 	// Wrap the mux with CORS middleware}

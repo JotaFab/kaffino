@@ -20,13 +20,13 @@ interface Product {
 }
 
 export const ProductDetail: React.FC = () => {
-  console.log(document.URL)
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        console.log(id)
         const response = await fetch(`/api/v1/product/${id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -74,3 +74,5 @@ export const ProductDetail: React.FC = () => {
     </main>
   );
 };
+
+export default ProductDetail;

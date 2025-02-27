@@ -118,6 +118,7 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 	query := `
 		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
 		FROM inventory
+		LIMIT 10
 	`
 
 	rows, err := s.db.QueryContext(ctx, query)
