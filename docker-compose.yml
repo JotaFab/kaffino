@@ -1,37 +1,50 @@
 services:
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
       target: prod
     restart: unless-stopped
     ports:
-      - ${PORT}:${PORT}
+      - 8080:8080
     environment:
       APP_ENV: ${APP_ENV}
       PORT: ${PORT}
       BLUEPRINT_DB_URL: ${BLUEPRINT_DB_URL}
     volumes:
-      - sqlite_bp:/app/db
+      - ./db:/app/db
+    networks:
+      - kaffino-network
+
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - 3000:3000
     depends_on:
-      - app
-  nginx:
+      - backend
+    networks:
+      - kaffino-network
+
+  proxy:
     build:
-      context: .
+      context: ./proxy
       dockerfile: Dockerfile
-      target: nginx
     restart: unless-stopped
     ports:
-      - 80:80
+      - 8000:8000
     depends_on:
-      - app
       - frontend
+      - backend
+    networks:
+      - kaffino-network
+
+networks:
+  kaffino-network:
+    driver: bridge
+    
 volumes:
   sqlite_bp:
-    ./db
+

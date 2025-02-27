@@ -2,12 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"fmt"
 	"time"
 
 	"github.com/coder/websocket"
+
+	"kaffino/internal/server/auth"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -25,8 +27,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("GET /products", s.listProductsHandler)
 	mux.HandleFunc("PUT /product/{id}", s.updateProductHandler)
 	mux.HandleFunc("DELETE /product/{id}", s.deleteProductHandler)
+
+	// OTP, login route
+	mux.HandleFunc("/login", auth.LoginHandler)
+	mux.HandleFunc("POST /verify-otp", auth.VerifyOTPHandler)
+	mux.HandleFunc("GET /logout", auth.LogoutHandler)
 	// Wrap the mux with CORS middleware}
-	return s.corsMiddleware(mux)
+
+	wrap := auth.SessionMiddleware(mux)
+	return s.corsMiddleware(wrap)
 }
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {

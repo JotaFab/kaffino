@@ -9,7 +9,6 @@ build:
 # Run the application
 run:
 	@go run cmd/api/main.go &
-	@cd frontend && bun install --prefer-offline --no-fund
 	@cd frontend && bun run build && bun run dev
 # Create DB container
 docker-run:

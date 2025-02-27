@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"kaffino/internal/coffeeshop"
 )
@@ -42,27 +43,29 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 	}
 
 	query := `
-		INSERT INTO products (id, code, images, discount, title, description, long_description, discount_percentage, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO inventory (id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err = s.db.ExecContext(ctx, query,
 		product.ID, product.Code, imagesJSON, product.Discount, product.Title, product.Description,
-		product.LongDescription, product.DiscountPercentage, reviewsJSON, mapSizePriceJSON,
+		product.LongDescription, reviewsJSON, mapSizePriceJSON,
 		schedulesJSON, tagsJSON, product.CreatedAt, product.UpdatedAt, product.StockQuantity, sizesJSON)
 
 	if err != nil {
 		return fmt.Errorf("error creating product: %w", err)
+
 	}
 
+	log.Println("Product created successfully")
 	return nil
 }
 
 // GetProduct retrieves a product from the database by ID.
 func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error) {
 	query := `
-		SELECT id, code, images, discount, title, description, long_description, discount_percentage, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
-		FROM products
+		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
+		FROM inventory
 		WHERE id = ?
 	`
 
@@ -72,7 +75,7 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 	var imagesJSON, reviewsJSON, schedulesJSON, tagsJSON, mapSizePriceJSON, sizesJSON []byte
 
 	err := row.Scan(&product.ID, &product.Code, &imagesJSON, &product.Discount, &product.Title, &product.Description,
-		&product.LongDescription, &product.DiscountPercentage, &reviewsJSON, &mapSizePriceJSON,
+		&product.LongDescription, &reviewsJSON, &mapSizePriceJSON,
 		&schedulesJSON, &tagsJSON, &product.CreatedAt, &product.UpdatedAt, &product.StockQuantity, &sizesJSON)
 
 	if err != nil {
@@ -106,14 +109,15 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 		return nil, fmt.Errorf("error unmarshaling sizes: %w", err)
 	}
 
+	log.Println("Product retrieved successfully")
 	return product, nil
 }
 
 // ListProducts retrieves all products from the database.
 func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, error) {
 	query := `
-		SELECT id, code, images, discount, title, description, long_description, discount_percentage, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
-		FROM products
+		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
+		FROM inventory
 	`
 
 	rows, err := s.db.QueryContext(ctx, query)
@@ -128,7 +132,7 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 		var imagesJSON, reviewsJSON, schedulesJSON, tagsJSON, mapSizePriceJSON, sizesJSON []byte
 
 		err := rows.Scan(&product.ID, &product.Code, &imagesJSON, &product.Discount, &product.Title, &product.Description,
-			&product.LongDescription, &product.DiscountPercentage, &reviewsJSON, &mapSizePriceJSON,
+			&product.LongDescription, &reviewsJSON, &mapSizePriceJSON,
 			&schedulesJSON, &tagsJSON, &product.CreatedAt, &product.UpdatedAt, &product.StockQuantity, &sizesJSON)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning product: %w", err)
@@ -201,14 +205,14 @@ func (s *service) UpdateProduct(ctx context.Context, product *coffeeshop.Product
 	}
 
 	query := `
-		UPDATE products
-		SET code = ?, images = ?, discount = ?, title = ?, description = ?, long_description = ?, discount_percentage = ?, reviews = ?, map_size_price = ?, schedules = ?, tags = ?, updated_at = ?, stock_quantity = ?, sizes = ?
+		UPDATE inventory
+		SET code = ?, images = ?, discount = ?, title = ?, description = ?, long_description = ?, reviews = ?, map_size_price = ?, schedules = ?, tags = ?, updated_at = ?, stock_quantity = ?, sizes = ?
 		WHERE id = ?
 	`
 
 	_, err = s.db.ExecContext(ctx, query,
 		product.Code, imagesJSON, product.Discount, product.Title, product.Description,
-		product.LongDescription, product.DiscountPercentage, reviewsJSON, mapSizePriceJSON,
+		product.LongDescription, reviewsJSON, mapSizePriceJSON,
 		schedulesJSON, tagsJSON, product.UpdatedAt, product.StockQuantity, sizesJSON,
 		product.ID)
 

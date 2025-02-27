@@ -51,6 +51,8 @@ func main() {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}
 
+	log.Println("Server started at port 8080")
+
 	// Wait for the graceful shutdown to complete
 	<-done
 	log.Println("Graceful shutdown complete.")
