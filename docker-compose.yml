@@ -1,4 +1,12 @@
 services:
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run --token ${CLOUDFLAREDTOKEN}
+    environment:
+      - CLOUDFLAREDTOKEN=${CLOUDFLAREDTOKEN}
+    networks:
+      - kaffino-network
   backend:
     build:
       context: .
