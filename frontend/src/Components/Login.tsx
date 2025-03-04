@@ -39,9 +39,15 @@ export const Login: React.FC = () => {
             }
 
             const data = await response.json();
-            console.log("OTP sent:", data);
-            setShowOtpInput(true);
-            setLoginError("");
+            if (data.success && data.message === "Already logged in") {
+                // Redirect to home page if already logged in
+                console.log("Already logged in, redirecting...");
+                navigate("/");
+            } else {
+                console.log("OTP sent:", data);
+                setShowOtpInput(true);
+                setLoginError("");
+            }
             // Show success message
         } catch (error) {
             console.error("Login initiation failed:", error);
@@ -105,6 +111,7 @@ export const Login: React.FC = () => {
                                 placeholder="Correo Electrónico"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
                             />
                             {emailError && <p className="text-red-500 text-xs italic">{emailError}</p>}
                         </div>
@@ -145,7 +152,11 @@ export const Login: React.FC = () => {
                     </form>
                 )}
                 {loginError && <p className="text-red-500 text-xs italic">{loginError}</p>}
-                <p className="text-gray-700 text-sm italic mt-4">¿Qué pensamos de las contraseñas? Nosotros no creemos en las contraseñas, así que te enviaremos a tu correo una clave mágica que podrás usar para iniciar sesión. Esta clave solo dura 5 minutos, y así podrás iniciar sesión. No necesitas crear una cuenta tampoco, solo ingresa un email válido y te enviaremos una clave mágica.</p>
+                <div className="text-gray-700 text-sm italic mt-4">
+                    <p>¿Qué pensamos de las contraseñas? Nosotros no creemos en las contraseñas, así que te enviaremos a tu correo una clave mágica que podrás usar para iniciar sesión.</p>
+                    <p>Esta clave solo dura 5 minutos, y así podrás iniciar sesión.</p>
+                    <p>No necesitas crear una cuenta tampoco, solo ingresa un email válido y te enviaremos una clave mágica.</p>
+                </div>
             </div>
         </div>
     );
