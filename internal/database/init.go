@@ -2,9 +2,12 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"kaffino/internal/coffeeshop"
+
+	"github.com/google/uuid"
 )
 
 // dbInit checks if the products table exists and creates it if it doesn't.
@@ -46,14 +49,19 @@ func (s *service) createKaffinoTables() error {
 				images TEXT,             -- Comma-separated list of image URLs
 				title VARCHAR(255) NOT NULL,
 				description TEXT,
-				long_description TEXT,
-				discount DECIMAL(10, 2) DEFAULT 0.00,
-				reviews TEXT,            -- Comma-separated list of review IDs (or review text)
-				tags TEXT,               -- Comma-separated list of tags
-				map_size_price TEXT,    -- JSON object for size-price mapping
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				sizes TEXT               -- Comma-separated list of available sizes
+			);
+				
+			CREATE TABLE IF NOT EXISTS inventory (
+				id VARCHAR(36) PRIMARY KEY,
+				product_id VARCHAR(36) NOT NULL,
+				stock INTEGER NOT NULL DEFAULT 0,
+				sizes TEXT,               -- Comma-separated list of available sizes
+				price DECIMAL(10,2) NOT NULL DEFAULT 0.0,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (product_id) REFERENCES products(id)
 			);
 
 			CREATE TABLE IF NOT EXISTS orders (
@@ -80,6 +88,18 @@ func (s *service) createKaffinoTables() error {
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY (order_id) REFERENCES orders(id), -- Foreign key to the orders table
 				FOREIGN KEY (product_id) REFERENCES products(id) -- Foreign key to the products table
+			);
+
+			CREATE TABLE IF NOT EXISTS reviews (
+				id VARCHAR(36) PRIMARY KEY,
+				product_id VARCHAR(36) NOT NULL,
+				user_id VARCHAR(36) NOT NULL,
+				rating INTEGER NOT NULL,
+				comment TEXT,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (product_id) REFERENCES products(id),
+				FOREIGN KEY (user_id) REFERENCES users(id)
 			);
 		`
 
@@ -116,46 +136,39 @@ func (s *service) populateproductsTable() error {
 		// Define products
 		products := []coffeeshop.Product{
 			{
-				Code:            "BEAN001",
-				Images:          []string{"whole_bean1.jpg", "whole_bean2.jpg"},
-				Discount:        0.00,
-				Title:           "Peruvian Whole Bean Coffee",
-				Description:     "High-altitude Arabica beans, perfect for home roasting.",
-				LongDescription: "Experience the rich and complex flavors of our Peruvian Whole Bean Coffee. Sourced from the high-altitude regions of Peru, these Arabica beans are perfect for home roasting, allowing you to customize your coffee experience to your exact preferences.",
-				Reviews:         []string{"Great taste!"},
-				MapSizePrice:    map[string]float64{"Half Bag (6oz)": 9.00, "Full Bag (12oz)": 18.00},
-				Schedules:       []string{"Morning", "Afternoon"},
-				Tags:            []string{"coffee", "beans", "whole"},
-				StockQuantity:   100,
-				Sizes:           []string{"Half Bag (6oz)", "Full Bag (12oz)"},
+				Code:        "BEAN001",
+				Images:      []string{"whole_bean1.jpg", "whole_bean2.jpg"},
+				Title:       "Peruvian Whole Bean Coffee",
+				Description: "High-altitude Arabica beans, perfect for home roasting.",
+				Tags:        []string{"coffee", "beans", "whole"},
 			},
 			{
-				Code:            "DRINK001",
-				Images:          []string{"cappuccino1.jpg", "cappuccino2.jpg"},
-				Discount:        2.50,
-				Title:           "Classic Cappuccino",
-				Description:     "Espresso with steamed milk and foamed milk.",
-				LongDescription: "A perfectly balanced cappuccino with rich espresso, steamed milk, and a delicate layer of foamed milk. A classic choice for any coffee lover.",
-				Reviews:         []string{"Perfect for a morning boost."},
-				MapSizePrice:    map[string]float64{"Small": 12.00, "Medium": 22.00, "Large": 30.00},
-				Schedules:       []string{"Anytime"},
-				Tags:            []string{"coffee", "cappuccino", "classic"},
-				StockQuantity:   50,
-				Sizes:           []string{"Small", "Medium", "Large"},
+				Code:        "DRINK001",
+				Images:      []string{"cappuccino1.jpg", "cappuccino2.jpg"},
+				Title:       "Classic Cappuccino",
+				Description: "Espresso with steamed milk and foamed milk.",
+				Tags:        []string{"coffee", "cappuccino", "classic"},
 			},
 			{
-				Code:            "BLEND002",
-				Images:          []string{"signature_blend1.jpg", "signature_blend2.jpg"},
-				Title:           "Kaffino Signature Blend",
-				Description:     "A unique blend of Peruvian and Ethiopian beans.",
-				LongDescription: "Our signature blend combines the best of Peruvian and Ethiopian beans, creating a harmonious balance of flavors with notes of chocolate and citrus. Perfect for any time of day.",
-				Discount:        5.00,
-				Reviews:         []string{"My favorite blend."},
-				MapSizePrice:    map[string]float64{"12oz": 15.00, "1lb": 25.00},
-				Schedules:       []string{"Evening"},
-				Tags:            []string{"coffee", "blend", "signature"},
-				StockQuantity:   75,
-				Sizes:           []string{"12oz", "1lb"},
+				Code:        "BLEND002",
+				Images:      []string{"signature_blend1.jpg", "signature_blend2.jpg"},
+				Title:       "Kaffino Signature Blend",
+				Description: "A unique blend of Peruvian and Ethiopian beans.",
+				Tags:        []string{"coffee", "blend", "signature"},
+			},
+			{
+				Code:        "ACC001",
+				Images:      []string{"french_press1.jpg", "french_press2.jpg"},
+				Title:       "French Press",
+				Description: "Classic coffee brewing device.",
+				Tags:        []string{"coffee", "french press", "accessories"},
+			},
+			{
+				Code:        "GRIND001",
+				Images:      []string{"coffee_grinder1.jpg", "coffee_grinder2.jpg"},
+				Title:       "Coffee Grinder",
+				Description: "Electric coffee grinder for home use.",
+				Tags:        []string{"coffee", "grinder", "accessories"},
 			},
 		}
 
@@ -167,6 +180,26 @@ func (s *service) populateproductsTable() error {
 				log.Println("Error inserting product data:", err)
 				return err
 			}
+
+			// Create inventory for the product
+			inventory := coffeeshop.Inventory{
+				ProductID: product.ID,
+				Stock:     100,    // Example stock
+				Size:      "12oz", // Example size
+				Price:     15.00,  // Example price
+			}
+
+			inventoryID := uuid.New().String()
+			_, err = s.db.Exec(`
+				INSERT INTO inventory (id, product_id, stock, sizes, price)
+				VALUES (?, ?, ?, ?, ?)
+			`, inventoryID, inventory.ProductID, inventory.Stock, inventory.Size, inventory.Price)
+
+			if err != nil {
+				log.Println("Error inserting inventory data:", err)
+				return err
+			}
+			fmt.Printf("Inserted inventory for product %s\n", product.Title)
 		}
 
 		log.Println("products table populated successfully.")
