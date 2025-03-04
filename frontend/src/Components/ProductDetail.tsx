@@ -199,7 +199,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                     onChange={handleQuantityChange}
                   />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-sepia">
                   ${dynamicPrice.toFixed(2)}
                 </div>
                 <button className="bg-licorice text-white px-4 py-2 rounded-md hover:bg-sepia" onClick={handleAddToCartClick}>

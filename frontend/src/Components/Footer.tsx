@@ -2,7 +2,7 @@ import React from "react";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-white shadow-md mt-16">
+    <footer className="bg-licorice shadow-md mt-16">
       <div className="max-w-auto mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex justify-between items-center">
           <div className="flex-shrink-0">
@@ -14,29 +14,29 @@ export const Footer: React.FC = () => {
               width="100"
             />
           </div>
-          <div className="flex space-x-4">
-            <a className="text-gray-700 hover:text-gray-900" href="/products">
+          <div className="text-isabeline flex space-x-4">
+            <a className=" hover:text-sepia" href="/products">
               Products
             </a>
-            <a className="text-gray-700 hover:text-gray-900" href="/cart">
+            <a className="hover:text-sepia" href="/cart">
               Cart
             </a>
-            <a className="text-gray-700 hover:text-gray-900" href="/contact-us">
+            <a className="hover:text-sepia" href="/contact-us">
               Contact Us
             </a>
             <a
-              className="text-gray-700 hover:text-gray-900"
+              className="hover:text-sepia"
               href="/subscription"
             >
               Subscription
             </a>
-            <a className="text-gray-700 hover:text-gray-900" href="/gifts">
+            <a className="hover:text-sepia" href="/gifts">
               Gifts
             </a>
           </div>
         </div>
-        <div className="mt-4 text-center text-gray-500 text-sm">
-          © 2023 Company Name. All rights reserved.
+        <div className="mt-4 text-center text-white text-sm">
+          © 2025 Jaqi Phaxi S.A.C. All rights reserved.
         </div>
       </div>
     </footer>

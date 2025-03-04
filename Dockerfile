@@ -14,10 +14,6 @@ FROM docker.io/alpine:3.20.1 AS prod
 
 WORKDIR /app
 COPY --from=build /app/main /app/main
-# Set environment variables
-ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-ENV AWS_REGION=${AWS_REGION}
 
 EXPOSE 8080
 CMD ["./main"]

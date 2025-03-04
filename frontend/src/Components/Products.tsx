@@ -56,7 +56,7 @@ export const Products: React.FC = () => {
                 src={product.images[0]}
               />
               <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-sepia mb-2">
                   {product.title}
                 </h3>
                 <p className="text-gray-700">{product.description}</p>

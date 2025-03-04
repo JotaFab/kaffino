@@ -49,9 +49,23 @@ func (s *service) createKaffinoTables() error {
 				images TEXT,             -- Comma-separated list of image URLs
 				title VARCHAR(255) NOT NULL,
 				description TEXT,
-				Tags Text,
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS tags (
+				id VARCHAR(36) PRIMARY KEY,
+				name VARCHAR(255) UNIQUE NOT NULL,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS product_tags (
+				product_id VARCHAR(36) NOT NULL,
+				tag_id VARCHAR(36) NOT NULL,
+				PRIMARY KEY (product_id, tag_id),
+				FOREIGN KEY (product_id) REFERENCES products(id),
+				FOREIGN KEY (tag_id) REFERENCES tags(id)
 			);
 				
 			CREATE TABLE IF NOT EXISTS inventory (
