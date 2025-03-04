@@ -12,19 +12,10 @@ import (
 
 // CreateProduct creates a new product in the database.
 func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product) error {
+	product.NewProduct()
 	imagesJSON, err := json.Marshal(product.Images)
 	if err != nil {
 		return fmt.Errorf("error marshaling images: %w", err)
-	}
-
-	reviewsJSON, err := json.Marshal(product.Reviews)
-	if err != nil {
-		return fmt.Errorf("error marshaling reviews: %w", err)
-	}
-
-	schedulesJSON, err := json.Marshal(product.Schedules)
-	if err != nil {
-		return fmt.Errorf("error marshaling schedules: %w", err)
 	}
 
 	tagsJSON, err := json.Marshal(product.Tags)
@@ -32,29 +23,17 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 		return fmt.Errorf("error marshaling tags: %w", err)
 	}
 
-	mapSizePriceJSON, err := json.Marshal(product.MapSizePrice)
-	if err != nil {
-		return fmt.Errorf("error marshaling map_size_price: %w", err)
-	}
-
-	sizesJSON, err := json.Marshal(product.Sizes)
-	if err != nil {
-		return fmt.Errorf("error marshaling sizes: %w", err)
-	}
-
 	query := `
-		INSERT INTO products (id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO products (id, code, images, title, description, tags, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err = s.db.ExecContext(ctx, query,
-		product.ID, product.Code, imagesJSON, product.Discount, product.Title, product.Description,
-		product.LongDescription, reviewsJSON, mapSizePriceJSON,
-		schedulesJSON, tagsJSON, product.CreatedAt, product.UpdatedAt, product.StockQuantity, sizesJSON)
+		product.ID, product.Code, imagesJSON, product.Title, product.Description,
+		tagsJSON, product.CreatedAt, product.UpdatedAt)
 
 	if err != nil {
 		return fmt.Errorf("error creating product: %w", err)
-
 	}
 
 	log.Println("Product created successfully")
@@ -64,7 +43,7 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 // GetProduct retrieves a product from the database by ID.
 func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error) {
 	query := `
-		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
+		SELECT id, code, images, title, description, tags, created_at, updated_at
 		FROM products
 		WHERE id = ?
 	`
@@ -72,11 +51,10 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 	row := s.db.QueryRowContext(ctx, query, id)
 
 	product := &coffeeshop.Product{}
-	var imagesJSON, reviewsJSON, schedulesJSON, tagsJSON, mapSizePriceJSON, sizesJSON []byte
+	var imagesJSON, tagsJSON []byte
 
-	err := row.Scan(&product.ID, &product.Code, &imagesJSON, &product.Discount, &product.Title, &product.Description,
-		&product.LongDescription, &reviewsJSON, &mapSizePriceJSON,
-		&schedulesJSON, &tagsJSON, &product.CreatedAt, &product.UpdatedAt, &product.StockQuantity, &sizesJSON)
+	err := row.Scan(&product.ID, &product.Code, &imagesJSON, &product.Title, &product.Description,
+		&tagsJSON, &product.CreatedAt, &product.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -89,24 +67,8 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 		return nil, fmt.Errorf("error unmarshaling images: %w", err)
 	}
 
-	if err := json.Unmarshal(reviewsJSON, &product.Reviews); err != nil {
-		return nil, fmt.Errorf("error unmarshaling reviews: %w", err)
-	}
-
-	if err := json.Unmarshal(schedulesJSON, &product.Schedules); err != nil {
-		return nil, fmt.Errorf("error unmarshaling schedules: %w", err)
-	}
-
 	if err := json.Unmarshal(tagsJSON, &product.Tags); err != nil {
 		return nil, fmt.Errorf("error unmarshaling tags: %w", err)
-	}
-
-	if err := json.Unmarshal(mapSizePriceJSON, &product.MapSizePrice); err != nil {
-		return nil, fmt.Errorf("error unmarshaling mapSizePrice: %w", err)
-	}
-
-	if err := json.Unmarshal(sizesJSON, &product.Sizes); err != nil {
-		return nil, fmt.Errorf("error unmarshaling sizes: %w", err)
 	}
 
 	log.Println("Product retrieved successfully")
@@ -116,7 +78,7 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 // ListProducts retrieves all products from the database.
 func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, error) {
 	query := `
-		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
+		SELECT id, code, images, title, description, tags, created_at, updated_at
 		FROM products
 		LIMIT 10
 	`
@@ -130,11 +92,10 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 	var products []*coffeeshop.Product
 	for rows.Next() {
 		product := &coffeeshop.Product{}
-		var imagesJSON, reviewsJSON, schedulesJSON, tagsJSON, mapSizePriceJSON, sizesJSON []byte
+		var imagesJSON, tagsJSON []byte
 
-		err := rows.Scan(&product.ID, &product.Code, &imagesJSON, &product.Discount, &product.Title, &product.Description,
-			&product.LongDescription, &reviewsJSON, &mapSizePriceJSON,
-			&schedulesJSON, &tagsJSON, &product.CreatedAt, &product.UpdatedAt, &product.StockQuantity, &sizesJSON)
+		err := rows.Scan(&product.ID, &product.Code, &imagesJSON, &product.Title, &product.Description,
+			&tagsJSON, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning product: %w", err)
 		}
@@ -143,24 +104,8 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 			return nil, fmt.Errorf("error unmarshaling images: %w", err)
 		}
 
-		if err := json.Unmarshal(reviewsJSON, &product.Reviews); err != nil {
-			return nil, fmt.Errorf("error unmarshaling reviews: %w", err)
-		}
-
-		if err := json.Unmarshal(schedulesJSON, &product.Schedules); err != nil {
-			return nil, fmt.Errorf("error unmarshaling schedules: %w", err)
-		}
-
 		if err := json.Unmarshal(tagsJSON, &product.Tags); err != nil {
 			return nil, fmt.Errorf("error unmarshaling tags: %w", err)
-		}
-
-		if err := json.Unmarshal(mapSizePriceJSON, &product.MapSizePrice); err != nil {
-			return nil, fmt.Errorf("error unmarshaling mapSizePrice: %w", err)
-		}
-
-		if err := json.Unmarshal(sizesJSON, &product.Sizes); err != nil {
-			return nil, fmt.Errorf("error unmarshaling sizes: %w", err)
 		}
 
 		products = append(products, product)
@@ -180,41 +125,20 @@ func (s *service) UpdateProduct(ctx context.Context, product *coffeeshop.Product
 		return fmt.Errorf("error marshaling images: %w", err)
 	}
 
-	reviewsJSON, err := json.Marshal(product.Reviews)
-	if err != nil {
-		return fmt.Errorf("error marshaling reviews: %w", err)
-	}
-
-	schedulesJSON, err := json.Marshal(product.Schedules)
-	if err != nil {
-		return fmt.Errorf("error marshaling schedules: %w", err)
-	}
-
 	tagsJSON, err := json.Marshal(product.Tags)
 	if err != nil {
 		return fmt.Errorf("error marshaling tags: %w", err)
 	}
 
-	mapSizePriceJSON, err := json.Marshal(product.MapSizePrice)
-	if err != nil {
-		return fmt.Errorf("error marshaling map_size_price: %w", err)
-	}
-
-	sizesJSON, err := json.Marshal(product.Sizes)
-	if err != nil {
-		return fmt.Errorf("error marshaling sizes: %w", err)
-	}
-
 	query := `
 		UPDATE products
-		SET code = ?, images = ?, discount = ?, title = ?, description = ?, long_description = ?, reviews = ?, map_size_price = ?, schedules = ?, tags = ?, updated_at = ?, stock_quantity = ?, sizes = ?
+		SET code = ?, images = ?, title = ?, description = ?, tags = ?, updated_at = ?
 		WHERE id = ?
 	`
 
 	_, err = s.db.ExecContext(ctx, query,
-		product.Code, imagesJSON, product.Discount, product.Title, product.Description,
-		product.LongDescription, reviewsJSON, mapSizePriceJSON,
-		schedulesJSON, tagsJSON, product.UpdatedAt, product.StockQuantity, sizesJSON,
+		product.Code, imagesJSON, product.Title, product.Description,
+		tagsJSON, product.UpdatedAt,
 		product.ID)
 
 	if err != nil {

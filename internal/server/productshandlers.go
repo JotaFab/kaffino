@@ -72,6 +72,7 @@ func (s *Server) listProductsHandler(w http.ResponseWriter, r *http.Request) {
 	// List all products
 	products, err := s.db.ListProducts(r.Context())
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to list products", http.StatusInternalServerError)
 		return
 	}

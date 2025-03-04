@@ -40,7 +40,7 @@ func (s *service) createKaffinoTables() error {
 				subscriber BOOLEAN DEFAULT FALSE, -- Indicates if the user is a subscriber
 				username VARCHAR(255),       -- User's username
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			);
 						
 			CREATE TABLE IF NOT EXISTS products (
@@ -61,7 +61,7 @@ func (s *service) createKaffinoTables() error {
 				price DECIMAL(10,2) NOT NULL DEFAULT 0.0,
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (product_id) REFERENCES products(id)
+				FOREIGN KEY (product_id) REFERENCES products(id),
 			);
 
 			CREATE TABLE IF NOT EXISTS orders (
@@ -75,7 +75,7 @@ func (s *service) createKaffinoTables() error {
 				order_status VARCHAR(255) DEFAULT 'Pending', -- Order status (e.g., "Pending", "Processing", "Shipped", "Delivered", "Cancelled")
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (user_id) REFERENCES users(id) -- Foreign key to the users table
+				FOREIGN KEY (user_id) REFERENCES users(id), -- Foreign key to the users table
 			);
 
 			CREATE TABLE IF NOT EXISTS order_items (
@@ -87,7 +87,7 @@ func (s *service) createKaffinoTables() error {
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY (order_id) REFERENCES orders(id), -- Foreign key to the orders table
-				FOREIGN KEY (product_id) REFERENCES products(id) -- Foreign key to the products table
+				FOREIGN KEY (product_id) REFERENCES products(id), -- Foreign key to the products table
 			);
 
 			CREATE TABLE IF NOT EXISTS reviews (
@@ -99,7 +99,7 @@ func (s *service) createKaffinoTables() error {
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY (product_id) REFERENCES products(id),
-				FOREIGN KEY (user_id) REFERENCES users(id)
+				FOREIGN KEY (user_id) REFERENCES users(id),
 			);
 		`
 
@@ -174,7 +174,6 @@ func (s *service) populateproductsTable() error {
 
 		// Insert products using CreateProduct method
 		for _, product := range products {
-			product.NewProduct()
 			err := s.CreateProduct(context.Background(), &product)
 			if err != nil {
 				log.Println("Error inserting product data:", err)
