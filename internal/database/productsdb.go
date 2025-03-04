@@ -43,7 +43,7 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 	}
 
 	query := `
-		INSERT INTO inventory (id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes)
+		INSERT INTO products (id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
@@ -65,7 +65,7 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error) {
 	query := `
 		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
-		FROM inventory
+		FROM products
 		WHERE id = ?
 	`
 
@@ -117,7 +117,7 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, error) {
 	query := `
 		SELECT id, code, images, discount, title, description, long_description, reviews, map_size_price, schedules, tags, created_at, updated_at, stock_quantity, sizes
-		FROM inventory
+		FROM products
 		LIMIT 10
 	`
 
@@ -206,7 +206,7 @@ func (s *service) UpdateProduct(ctx context.Context, product *coffeeshop.Product
 	}
 
 	query := `
-		UPDATE inventory
+		UPDATE products
 		SET code = ?, images = ?, discount = ?, title = ?, description = ?, long_description = ?, reviews = ?, map_size_price = ?, schedules = ?, tags = ?, updated_at = ?, stock_quantity = ?, sizes = ?
 		WHERE id = ?
 	`

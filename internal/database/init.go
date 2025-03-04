@@ -17,10 +17,10 @@ func (s *service) DbInit() error {
 		return err
 	}
 
-	// Populate the inventory table with example products
-	err = s.populateInventoryTable()
+	// Populate the products table with example products
+	err = s.populateproductsTable()
 	if err != nil {
-		log.Println("Error populating inventory table:", err)
+		log.Println("Error populating products table:", err)
 		return err
 	}
 
@@ -40,7 +40,7 @@ func (s *service) createKaffinoTables() error {
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 			);
 						
-			CREATE TABLE IF NOT EXISTS inventory (
+			CREATE TABLE IF NOT EXISTS products (
 				id VARCHAR(36) PRIMARY KEY,
 				code VARCHAR(255) UNIQUE,
 				images TEXT,             -- Comma-separated list of image URLs
@@ -51,10 +51,8 @@ func (s *service) createKaffinoTables() error {
 				reviews TEXT,            -- Comma-separated list of review IDs (or review text)
 				tags TEXT,               -- Comma-separated list of tags
 				map_size_price TEXT,    -- JSON object for size-price mapping
-				schedules TEXT,          -- Comma-separated list of schedules
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				stock_quantity INTEGER DEFAULT 0,
 				sizes TEXT               -- Comma-separated list of available sizes
 			);
 
@@ -81,7 +79,7 @@ func (s *service) createKaffinoTables() error {
 				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 				FOREIGN KEY (order_id) REFERENCES orders(id), -- Foreign key to the orders table
-				FOREIGN KEY (product_id) REFERENCES inventory(id) -- Foreign key to the inventory table
+				FOREIGN KEY (product_id) REFERENCES products(id) -- Foreign key to the products table
 			);
 		`
 
@@ -96,24 +94,24 @@ func (s *service) createKaffinoTables() error {
 	return nil
 }
 
-// A function that populates the inventory table based on our product data.
-func (s *service) populateInventoryTable() error {
-	// Check if the inventory table is already populated
+// A function that populates the products table based on our product data.
+func (s *service) populateproductsTable() error {
+	// Check if the products table is already populated
 	var tablePopulated bool
 	err := s.db.QueryRow(`
 		SELECT EXISTS (
 			SELECT 1
-			FROM inventory
+			FROM products
 		)
 	`).Scan(&tablePopulated)
 	if err != nil {
-		log.Println("Error checking if inventory table is populated:", err)
+		log.Println("Error checking if products table is populated:", err)
 		return err
 	}
 
-	// If the inventory table is not populated, insert the product data
+	// If the products table is not populated, insert the product data
 	if !tablePopulated {
-		log.Println("Inventory table is not populated, inserting product data...")
+		log.Println("products table is not populated, inserting product data...")
 
 		// Define products
 		products := []coffeeshop.Product{
@@ -171,9 +169,9 @@ func (s *service) populateInventoryTable() error {
 			}
 		}
 
-		log.Println("Inventory table populated successfully.")
+		log.Println("products table populated successfully.")
 	} else {
-		log.Println("Inventory table is already populated.")
+		log.Println("products table is already populated.")
 	}
 	return nil
 }
