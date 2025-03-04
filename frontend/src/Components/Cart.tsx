@@ -43,8 +43,8 @@ export const Cart: React.FC<CartProps> = ({ cartItems }) => {
   };
 
   return (
-    <div className="my-20">
-      <h2>Shopping Cart</h2>
+    <div className="my-20 bg-isabeline">
+      <h2 className="text-licorice">Shopping Cart</h2>
       {cartItems.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
@@ -56,7 +56,7 @@ export const Cart: React.FC<CartProps> = ({ cartItems }) => {
           ))}
         </ul>
       )}
-      <button onClick={handleCreateOrder} disabled={cartItems.length === 0}>
+      <button className="bg-licorice text-white px-4 py-2 rounded-md hover:bg-sepia" onClick={handleCreateOrder} disabled={cartItems.length === 0}>
         Create Order
       </button>
     </div>

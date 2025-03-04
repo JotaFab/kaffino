@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+  --color-bistre: #331D0A;
+  --color-licorice: #44260D;
+  --color-sepia: #663A14;
+  --color-isabeline: #fffaf6;
+}

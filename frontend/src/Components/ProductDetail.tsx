@@ -87,7 +87,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
   return (
     <div className="my-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="bg-isabeline shadow-md rounded-lg overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/2">
               <img
@@ -97,7 +97,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
               />
             </div>
             <div className="md:w-1/2 p-4">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-licorice mb-2">
                 {product.title}
               </h1>
               <p className="text-gray-700">{product.long_description}</p>
@@ -202,7 +202,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ addToCart }) => {
                 <div className="text-2xl font-bold text-gray-900">
                   ${dynamicPrice.toFixed(2)}
                 </div>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onClick={handleAddToCartClick}>
+                <button className="bg-licorice text-white px-4 py-2 rounded-md hover:bg-sepia" onClick={handleAddToCartClick}>
                   Add to Cart
                 </button>
               </div>

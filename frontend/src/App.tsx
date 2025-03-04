@@ -4,6 +4,7 @@ import { Navbar } from "./Components/Navbar";
 import { Footer } from "./Components/Footer";
 import { Top } from "./Components/Top";
 import { Cart } from "./Components/Cart";
+import { Login } from "./Components/Login";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ProductDetail } from "./Components/ProductDetail";
@@ -29,6 +30,7 @@ export const App: React.FC = () => {
         <Route path="/product/:id" element={<><Navbar /><ProductDetail addToCart={addToCart} /><Footer /> </>} />
         <Route path="/cart" element={<><Navbar /><Cart cartItems={cartItems} /><Footer /></>} />
         <Route path="/products" element={<><Navbar /><Products /><Footer /></>} />
+        <Route path="/login" element={<><Navbar /><Login /><Footer /></>} />
       </Routes>
     </BrowserRouter>
   );

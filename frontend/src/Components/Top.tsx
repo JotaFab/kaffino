@@ -1,11 +1,12 @@
+import React from "react";
 
 export const Top: React.FC = () => {
     return (
 
-        <div className="bg-white">
+        <div className="bg-isabeline">
             <div className="container mx-auto flex flex-col md:flex-row items-center my-12 md:my-24">
                 <div className="flex flex-col w-full lg:w-1/3 justify-center items-start p-8">
-                    <h1 className="text-3xl md:text-5xl p-2 text-green-500 tracking-loose">
+                    <h1 className="text-3xl md:text-5xl p-2 text-licorice tracking-loose">
                         Kafino
                     </h1>
                     <h2 className="text-3xl md:text-5xl leading-relaxed md:leading-snug mb-2">

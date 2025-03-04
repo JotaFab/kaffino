@@ -39,36 +39,36 @@ export const Products: React.FC = () => {
   }, []);
 
   return (
-    <div className="my-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
+    <div className="bg-isabeline py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-licorice text-center mb-8">
           Our Products
         </h2>
-        <div className="overflow-x-auto hide-scrollbar">
-          <div className="flex space-x-6 snap-x snap-mandatory w-full">
-            {products.map((product) => (
-              <a href={`/product/${product.id}`} key={product.id}>
-                <div className="bg-white snap-center shadow-md rounded-lg overflow-hidden w-full min-w-[300px]">
-                  <img
-                    alt={`Product image with placeholder text '${product.title}'`}
-                    className="w-full h-48 object-cover"
-                    src={product.images[0]}
-                  />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {product.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      ${product.map_size_price["Full Bag (12oz)"]}
-                    </p>
-                    <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                      View Details
-                    </button>
-                  </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white rounded-lg overflow-hidden shadow-md"
+            >
+              <img
+                alt={`Product image with placeholder text '${product.title}'`}
+                className="w-full h-64 object-cover"
+                src={product.images[0]}
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {product.title}
+                </h3>
+                <p className="text-gray-700">{product.description}</p>
+                <div className="mt-4 flex justify-between items-center">
+                  <span className="text-gray-600">${product.map_size_price["Full Bag (12oz)"]}</span>
+                  <button className="bg-licorice hover:bg-sepia text-white font-bold py-2 px-4 rounded">
+                    Add to Cart
+                  </button>
                 </div>
-              </a>
-            ))}
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

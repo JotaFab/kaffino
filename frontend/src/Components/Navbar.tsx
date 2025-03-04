@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
     };
 
     return (
-        <nav className="bg-white shadow-md fixed w-full z-10 top-0">
+        <nav className="bg-isabeline fixed w-full z-30 top-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex-shrink-0 flex items-center">
@@ -25,7 +25,7 @@ export const Navbar: React.FC = () => {
                     </div>
                     <div className="hidden md:flex md:items-center md:space-x-4">
                         <a
-                            className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                            className="text-licorice hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
                             href="/products"
                         >
                             Products
