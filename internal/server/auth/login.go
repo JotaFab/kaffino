@@ -97,8 +97,8 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	// Reset failed attempts on successful login
 	delete(failedLogins, email)
 
-	db := database.New()
-	userID, err := database.Service.GetUserID(db, email)
+	db := database.NewDB()
+	userID, err := db.GetUserID(email)
 	if err != nil {
 		jsonResponse(w, http.StatusInternalServerError, response{Success: false, Error: err.Error()})
 		return

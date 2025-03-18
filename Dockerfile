@@ -6,7 +6,12 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
+RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
 COPY . .
+
+# Generate sqlc code
+RUN sqlc generate
 
 RUN CGO_ENABLED=1 GOOS=linux go build -o main cmd/api/main.go
 

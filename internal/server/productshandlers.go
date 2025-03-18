@@ -2,15 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"kaffino/internal/database"
 	"log"
 	"net/http"
-
-	"kaffino/internal/coffeeshop"
 )
 
 func (s *Server) createProductHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
-	product := &coffeeshop.Product{}
+	product := &database.Product{}
 	if err := json.NewDecoder(r.Body).Decode(product); err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
@@ -93,7 +92,7 @@ func (s *Server) listProductsHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) updateProductHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
-	product := &coffeeshop.Product{}
+	product := &database.Product{}
 	if err := json.NewDecoder(r.Body).Decode(product); err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return

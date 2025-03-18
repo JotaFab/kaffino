@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import CartIcon from "../assets/cart.svg";
 import UserIcon from "../assets/user.svg";
 import MenuIcon from "../assets/menu.svg";
+import LogoIcon from "../assets/logobean.svg";
 
 export const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,38 +22,38 @@ export const Navbar: React.FC = () => {
                                 alt="Company logo with placeholder text 'Logo'"
                                 className="h-8 w-auto"
                                 height="40"
-                                src="https://storage.googleapis.com/a1aa/image/kslKXCnxdVEwxwUEiHe8nG2gvJGXnl7lF8y7OYBzec0.jpg"
+                                src={LogoIcon}
                                 width="100"
                             />
                         </Link>
                     </div>
-                    <div className="text-licorice hidden md:flex md:items-center md:space-x-4">
+                    <div className="text-sepia hidden md:flex md:items-center md:space-x-4">
                         <a
-                            className="hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
+                            className="hover:text-licorice px-3 py-2 rounded-md text-sm font-medium"
                             href="/products"
                         >
                             Products
                         </a>
                         <a
-                            className="hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
+                            className="hover:text-licorice px-3 py-2 rounded-md text-sm font-medium"
                             href="/cart"
                         >
                             Cart
                         </a>
                         <a
-                            className="hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
+                            className="hover:text-licorice px-3 py-2 rounded-md text-sm font-medium"
                             href="/contact-us"
                         >
                             Contact Us
                         </a>
                         <a
-                            className="hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
+                            className="hover:text-licorice px-3 py-2 rounded-md text-sm font-medium"
                             href="/subscription"
                         >
                             Subscription
                         </a>
                         <a
-                            className="hover:text-sepia px-3 py-2 rounded-md text-sm font-medium"
+                            className="hover:text-licorice px-3 py-2 rounded-md text-sm font-medium"
                             href="/gifts"
                         >
                             Gifts
@@ -60,14 +61,14 @@ export const Navbar: React.FC = () => {
                     </div>
                     <div className="flex items-center">
                         <Link to="/cart" className="mr-4">
-                            <img src={CartIcon} alt="Cart" className="fill-licorice hover:fill-sepia h-5 w-5" />
+                            <img src={CartIcon} alt="Cart" className="h-5 w-5" />
                         </Link>
                         <Link to="/login" className="mr-4" >
                             <img src={UserIcon} alt="User" className="h-5 w-5" />
                         </Link>
 
                         <button
-                            className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 md:hidden"
+                            className="md:hidden"
                             onClick={toggleMenu}
                         >
                             <img src={MenuIcon} alt="Menu" className="h-5 w-5" />
@@ -76,36 +77,36 @@ export const Navbar: React.FC = () => {
                 </div>
             </div>
             <div
-                className={`bg-isabeline shadow-md md:hidden ${isMenuOpen ? "" : "hidden"}`}
+                className={`bg-licorice px-2 shadow-md md:hidden ${isMenuOpen ? "" : "hidden"}`}
                 id="menu"
             >
-                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <div className="text-isabeline px-2 pt-2 pb-3 space-y-1 sm:px-3">
                     <a
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:text-sepia "
                         href="/products"
                     >
                         Products
                     </a>
                     <a
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:text-sepia "
                         href="/cart"
                     >
                         Cart
                     </a>
                     <a
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:text-sepia "
                         href="/contact-us"
                     >
                         Contact Us
                     </a>
                     <a
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:text-sepia "
                         href="/subscription"
                     >
                         Subscription
                     </a>
                     <a
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:text-sepia "
                         href="/gifts"
                     >
                         Gifts

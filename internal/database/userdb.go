@@ -6,24 +6,24 @@ import (
 
 	"github.com/google/uuid"
 
-	"kaffino/internal/coffeeshop"
+	
 )
 
-func (s *service) GetUser(email string) (coffeeshop.User, error) {
+func (s *service) GetUser(email string) (User, error) {
 	query := `
 		SELECT id, email, username, subscriber
 		FROM users
 		WHERE email = $1
 	`
-	var user coffeeshop.User
+	var user User
 	err := s.db.QueryRow(query, email).Scan(&user.ID, &user.Email, &user.Username, &user.Subscriber)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// User not found
-			return coffeeshop.User{}, nil // Return an empty User struct and a nil error
+			return User{}, nil // Return an empty User struct and a nil error
 		}
 		log.Println("Error retrieving user:", err)
-		return coffeeshop.User{}, err
+		return User{}, err
 	}
 
 	return user, nil

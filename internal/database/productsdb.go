@@ -6,32 +6,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
-	"kaffino/internal/coffeeshop"
+	"github.com/google/uuid"
 )
 
-// CreateProduct creates a new product in the database.
-func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product) error {
-	product.NewProduct()
-	imagesJSON, err := json.Marshal(product.Images)
-	if err != nil {
-		return fmt.Errorf("error marshaling images: %w", err)
+// Example CreateProduct using sqlc generated code
+func (s *service) CreateProduct(ctx context.Context, product *Product) error {
+	params := CreateProductParams{
+		ID:          uuid.New().String(),
+		Code:        product.Code,
+		Images:      product.Images,
+		Title:       product.Title,
+		Description: product.Description,
+		CreatedAt:   sql.NullTime{Time: time.Now(), Valid: true},
+		UpdatedAt:   sql.NullTime{Time: time.Now(), Valid: true},
 	}
 
-	tagsJSON, err := json.Marshal(product.Tags)
-	if err != nil {
-		return fmt.Errorf("error marshaling tags: %w", err)
-	}
-
-	query := `
-		INSERT INTO products (id, code, images, title, description, tags, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	`
-
-	_, err = s.db.ExecContext(ctx, query,
-		product.ID, product.Code, imagesJSON, product.Title, product.Description,
-		tagsJSON, product.CreatedAt, product.UpdatedAt)
-
+	err := s.q.CreateProduct(ctx, params)
 	if err != nil {
 		return fmt.Errorf("error creating product: %w", err)
 	}
@@ -40,22 +32,9 @@ func (s *service) CreateProduct(ctx context.Context, product *coffeeshop.Product
 	return nil
 }
 
-// GetProduct retrieves a product from the database by ID.
-func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error) {
-	query := `
-		SELECT id, code, images, title, description, tags, created_at, updated_at
-		FROM products
-		WHERE id = ?
-	`
-
-	row := s.db.QueryRowContext(ctx, query, id)
-
-	product := &coffeeshop.Product{}
-	var imagesJSON, tagsJSON []byte
-
-	err := row.Scan(&product.ID, &product.Code, &imagesJSON, &product.Title, &product.Description,
-		&tagsJSON, &product.CreatedAt, &product.UpdatedAt)
-
+// Example GetProduct using sqlc generated code
+func (s *service) GetProduct(ctx context.Context, id string) (*Product, error) {
+	productRow, err := s.q.GetProduct(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("product not found: %w", err)
@@ -63,12 +42,12 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 		return nil, fmt.Errorf("error getting product: %w", err)
 	}
 
-	if err := json.Unmarshal(imagesJSON, &product.Images); err != nil {
-		return nil, fmt.Errorf("error unmarshaling images: %w", err)
-	}
-
-	if err := json.Unmarshal(tagsJSON, &product.Tags); err != nil {
-		return nil, fmt.Errorf("error unmarshaling tags: %w", err)
+	product := &Product{
+		ID:          productRow.ID,
+		Code:        productRow.Code,
+		Images:      productRow.Images,
+		Title:       productRow.Title,
+		Description: productRow.Description,
 	}
 
 	log.Println("Product retrieved successfully")
@@ -76,9 +55,9 @@ func (s *service) GetProduct(ctx context.Context, id string) (*coffeeshop.Produc
 }
 
 // ListProducts retrieves all products from the database.
-func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, error) {
+func (s *service) ListProducts(ctx context.Context) ([]*Product, error) {
 	query := `
-		SELECT id, code, images, title, description, tags, created_at, updated_at
+		SELECT id, images, title, description, created_at, updated_at
 		FROM products
 		LIMIT 10
 	`
@@ -89,23 +68,14 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 	}
 	defer rows.Close()
 
-	var products []*coffeeshop.Product
+	var products []*Product
 	for rows.Next() {
-		product := &coffeeshop.Product{}
-		var imagesJSON, tagsJSON []byte
+		product := &Product{}
 
-		err := rows.Scan(&product.ID, &product.Code, &imagesJSON, &product.Title, &product.Description,
-			&tagsJSON, &product.CreatedAt, &product.UpdatedAt)
+		err := rows.Scan(&product.ID, &product.Images, &product.Title, &product.Description,
+			&product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning product: %w", err)
-		}
-
-		if err := json.Unmarshal(imagesJSON, &product.Images); err != nil {
-			return nil, fmt.Errorf("error unmarshaling images: %w", err)
-		}
-
-		if err := json.Unmarshal(tagsJSON, &product.Tags); err != nil {
-			return nil, fmt.Errorf("error unmarshaling tags: %w", err)
 		}
 
 		products = append(products, product)
@@ -119,26 +89,20 @@ func (s *service) ListProducts(ctx context.Context) ([]*coffeeshop.Product, erro
 }
 
 // UpdateProduct updates a product in the database.
-func (s *service) UpdateProduct(ctx context.Context, product *coffeeshop.Product) error {
+func (s *service) UpdateProduct(ctx context.Context, product *Product) error {
 	imagesJSON, err := json.Marshal(product.Images)
 	if err != nil {
 		return fmt.Errorf("error marshaling images: %w", err)
 	}
 
-	tagsJSON, err := json.Marshal(product.Tags)
-	if err != nil {
-		return fmt.Errorf("error marshaling tags: %w", err)
-	}
-
 	query := `
 		UPDATE products
-		SET code = ?, images = ?, title = ?, description = ?, tags = ?, updated_at = ?
+		SET code = ?, images = ?, title = ?, description = ?,  updated_at = ?
 		WHERE id = ?
 	`
 
 	_, err = s.db.ExecContext(ctx, query,
-		product.Code, imagesJSON, product.Title, product.Description,
-		tagsJSON, product.UpdatedAt,
+		product.Code, imagesJSON, product.Title, product.Description, product.UpdatedAt,
 		product.ID)
 
 	if err != nil {

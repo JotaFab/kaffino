@@ -1,8 +1,9 @@
 import React from "react";
+import LogoIcon from "../assets/logobean.svg";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-licorice shadow-md mt-16">
+    <footer className="bg-bistre shadow-md mt-16">
       <div className="max-w-auto mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex justify-between items-center">
           <div className="flex-shrink-0">
@@ -10,27 +11,24 @@ export const Footer: React.FC = () => {
               alt="Company logo with placeholder text 'Logo'"
               className="h-8 w-auto"
               height="40"
-              src="/imgs/logo.jpg"
+              src={LogoIcon}
               width="100"
             />
           </div>
           <div className="text-isabeline flex space-x-4">
-            <a className=" hover:text-sepia" href="/products">
+            <a href="/products">
               Products
             </a>
-            <a className="hover:text-sepia" href="/cart">
+            <a href="/cart">
               Cart
             </a>
-            <a className="hover:text-sepia" href="/contact-us">
+            <a href="/contact-us">
               Contact Us
             </a>
-            <a
-              className="hover:text-sepia"
-              href="/subscription"
-            >
+            <a href="/subscription">
               Subscription
             </a>
-            <a className="hover:text-sepia" href="/gifts">
+            <a href="/gifts">
               Gifts
             </a>
           </div>

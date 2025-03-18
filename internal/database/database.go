@@ -8,11 +8,11 @@ import (
 	"os"
 	"strconv"
 	"time"
-
+_ "modernc.org/sqlite"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 
-	"kaffino/internal/coffeeshop"
+	_ "embed"
 )
 
 // Service represents a service that interacts with a database.
@@ -28,18 +28,19 @@ type Service interface {
 	DbInit() error
 
 	// User methods
-	GetUser(email string) (coffeeshop.User, error)
+	GetUser(email string) (User, error)
 	GetUserID(email string) (string, error)
 	createUser(email string) (string, error)
-	CreateProduct(ctx context.Context, product *coffeeshop.Product) error
-	GetProduct(ctx context.Context, id string) (*coffeeshop.Product, error)
-	ListProducts(ctx context.Context) ([]*coffeeshop.Product, error)
-	UpdateProduct(ctx context.Context, product *coffeeshop.Product) error
+	CreateProduct(ctx context.Context, product *Product) error
+	GetProduct(ctx context.Context, id string) (*Product, error)
+	ListProducts(ctx context.Context) ([]*Product, error)
+	UpdateProduct(ctx context.Context, product *Product) error
 	DeleteProduct(ctx context.Context, id string) error
 }
 
 type service struct {
 	db *sql.DB
+	q  *Queries // Add a Queries instance
 }
 
 var (
@@ -47,7 +48,10 @@ var (
 	dbInstance *service
 )
 
-func New() Service {
+//go:embed schema.sql
+var ddl string
+
+func NewDB() Service {
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
@@ -58,11 +62,19 @@ func New() Service {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
 		log.Fatal(err)
+		return nil
 	}
 
+	if _, err := db.ExecContext(context.Background(), ddl); err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	q := New(db) // Create a Queries instance
 
 	dbInstance = &service{
 		db: db,
+		q:  q, // Assign the Queries instance
 	}
 	return dbInstance
 }

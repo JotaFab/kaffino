@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"kaffino/internal/coffeeshop"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -13,119 +13,14 @@ import (
 // dbInit checks if the products table exists and creates it if it doesn't.
 // It also populates the table with some example products.
 func (s *service) DbInit() error {
-	// Create Kaffino tables
-	err := s.createKaffinoTables()
-	if err != nil {
-		log.Println("Error creating tables:", err)
-		return err
-	}
 
 	// Populate the products table with example products
-	err = s.populateproductsTable()
+	err := s.populateproductsTable()
 	if err != nil {
 		log.Println("Error populating products table:", err)
 		return err
 	}
 
-	return nil
-}
-
-// A function that creates the Kaffino tables.
-func (s *service) createKaffinoTables() error {
-	// SQL statement to create the products table
-	createTableSQL := `
-			CREATE TABLE IF NOT EXISTS users (
-				id VARCHAR(36) PRIMARY KEY,  -- UUID for user identification
-				email VARCHAR(255) UNIQUE NOT NULL, -- User's email address (unique)
-				subscriber BOOLEAN DEFAULT FALSE, -- Indicates if the user is a subscriber
-				username VARCHAR(255),       -- User's username
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-			);
-						
-			CREATE TABLE IF NOT EXISTS products (
-				id VARCHAR(36) PRIMARY KEY,
-				code VARCHAR(255) UNIQUE,
-				images TEXT,             -- Comma-separated list of image URLs
-				title VARCHAR(255) NOT NULL,
-				description TEXT,
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-			);
-
-			CREATE TABLE IF NOT EXISTS tags (
-				id VARCHAR(36) PRIMARY KEY,
-				name VARCHAR(255) UNIQUE NOT NULL,
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-			);
-
-			CREATE TABLE IF NOT EXISTS product_tags (
-				product_id VARCHAR(36) NOT NULL,
-				tag_id VARCHAR(36) NOT NULL,
-				PRIMARY KEY (product_id, tag_id),
-				FOREIGN KEY (product_id) REFERENCES products(id),
-				FOREIGN KEY (tag_id) REFERENCES tags(id)
-			);
-				
-			CREATE TABLE IF NOT EXISTS inventory (
-				id VARCHAR(36) PRIMARY KEY,
-				product_id VARCHAR(36) NOT NULL,
-				stock INTEGER NOT NULL DEFAULT 0,
-				size TEXT,               -- Comma-separated list of available sizes
-				price DECIMAL(10,2) NOT NULL DEFAULT 0.0,
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (product_id) REFERENCES products(id)
-			);
-
-			CREATE TABLE IF NOT EXISTS orders (
-				id VARCHAR(36) PRIMARY KEY,  -- UUID for order identification
-				user_id VARCHAR(36) NOT NULL, -- UUID of the user who placed the order
-				order_date DATETIME DEFAULT CURRENT_TIMESTAMP, -- Date and time the order was placed
-				total_amount DECIMAL(10, 2) NOT NULL, -- Total amount of the order
-				shipping_address TEXT,       -- Shipping address
-				billing_address TEXT,        -- Billing address
-				payment_method VARCHAR(255),  -- Payment method used (e.g., "Credit Card", "PayPal")
-				order_status VARCHAR(255) DEFAULT 'Pending', -- Order status (e.g., "Pending", "Processing", "Shipped", "Delivered", "Cancelled")
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (user_id) REFERENCES users(id) -- Foreign key to the users table
-			);
-
-			CREATE TABLE IF NOT EXISTS order_items (
-				id VARCHAR(36) PRIMARY KEY,  -- UUID for order item identification
-				order_id VARCHAR(36) NOT NULL, -- UUID of the order
-				product_id VARCHAR(36) NOT NULL, -- UUID of the product
-				quantity INTEGER NOT NULL,      -- Quantity of the product ordered
-				price DECIMAL(10, 2) NOT NULL,   -- Price of the product at the time of the order
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (order_id) REFERENCES orders(id), -- Foreign key to the orders table
-				FOREIGN KEY (product_id) REFERENCES products(id) -- Foreign key to the products table
-			);
-
-			CREATE TABLE IF NOT EXISTS reviews (
-				id VARCHAR(36) PRIMARY KEY,
-				product_id VARCHAR(36) NOT NULL,
-				user_id VARCHAR(36) NOT NULL,
-				rating INTEGER NOT NULL,
-				comment TEXT,
-				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (product_id) REFERENCES products(id),
-				FOREIGN KEY (user_id) REFERENCES users(id)
-			);
-		`
-
-	// Execute the create table SQL statement
-	_, err := s.db.Exec(createTableSQL)
-	if err != nil {
-		log.Println("Error creating tables:", err)
-		return err
-	}
-
-	log.Println("Kaffino tables created successfully.")
 	return nil
 }
 
@@ -149,41 +44,78 @@ func (s *service) populateproductsTable() error {
 		log.Println("products table is not populated, inserting product data...")
 
 		// Define products
-		products := []coffeeshop.Product{
+		products := []Product{
 			{
-				Code:        "BEAN001",
-				Images:      []string{"whole_bean1.jpg", "whole_bean2.jpg"},
-				Title:       "Peruvian Whole Bean Coffee",
-				Description: "High-altitude Arabica beans, perfect for home roasting.",
-				Tags:        []string{"coffee", "beans", "whole"},
+				Code: sql.NullString{
+					String: "BEAN001",
+					Valid:  true, // Set Valid to true since you have a value
+				},
+				Images: sql.NullString{
+					String: "whole_bean1.jpg, whole_bean2.jpg",
+					Valid:  true,
+				},
+				Title: "Peruvian Whole Bean Coffee",
+				Description: sql.NullString{
+					String: "High-altitude Arabica beans, perfect for home roasting.",
+					Valid:  true,
+				},
 			},
 			{
-				Code:        "DRINK001",
-				Images:      []string{"cappuccino1.jpg", "cappuccino2.jpg"},
-				Title:       "Classic Cappuccino",
-				Description: "Espresso with steamed milk and foamed milk.",
-				Tags:        []string{"coffee", "cappuccino", "classic"},
+				Code: sql.NullString{
+					String: "DRINK001",
+					Valid:  true,
+				},
+				Images: sql.NullString{
+					String: "cappuccino1.jpg, cappuccino2.jpg",
+					Valid:  true,
+				},
+				Title: "Classic Cappuccino",
+				Description: sql.NullString{
+					String: "Espresso with steamed milk and foamed milk.",
+					Valid:  true},
 			},
 			{
-				Code:        "BLEND002",
-				Images:      []string{"signature_blend1.jpg", "signature_blend2.jpg"},
-				Title:       "Kaffino Signature Blend",
-				Description: "A unique blend of Peruvian and Ethiopian beans.",
-				Tags:        []string{"coffee", "blend", "signature"},
+				Code: sql.NullString{
+					String: "BLEND002",
+					Valid:  true,
+				},
+				Images: sql.NullString{
+					String: "signature_blend1.jpg, signature_blend2.jpg",
+					Valid:  true,
+				},
+				Title: "Kaffino Signature Blend",
+				Description: sql.NullString{
+					String: "A unique blend of Peruvian and Ethiopian beans.",
+					Valid:  true},
 			},
 			{
-				Code:        "ACC001",
-				Images:      []string{"french_press1.jpg", "french_press2.jpg"},
-				Title:       "French Press",
-				Description: "Classic coffee brewing device.",
-				Tags:        []string{"coffee", "french press", "accessories"},
+				Code: sql.NullString{
+					String: "ACC001",
+					Valid:  true,
+				},
+				Images: sql.NullString{
+					String: "french_press1.jpg, french_press2.jpg",
+					Valid:  true,
+				},
+				Title: "French Press",
+				Description: sql.NullString{
+					String: "Classic coffee brewing device.",
+					Valid:  true},
 			},
 			{
-				Code:        "GRIND001",
-				Images:      []string{"coffee_grinder1.jpg", "coffee_grinder2.jpg"},
-				Title:       "Coffee Grinder",
-				Description: "Electric coffee grinder for home use.",
-				Tags:        []string{"coffee", "grinder", "accessories"},
+				Code: sql.NullString{
+					String: "GRIND001",
+					Valid:  true,
+				},
+				Images: sql.NullString{
+					String: "coffee_grinder1.jpg, coffee_grinder2.jpg",
+					Valid:  true,
+				},
+				Title: "Coffee Grinder",
+				Description: sql.NullString{
+					String: "Electric coffee grinder for home use.",
+					Valid:  true,
+				},
 			},
 		}
 
@@ -196,18 +128,17 @@ func (s *service) populateproductsTable() error {
 			}
 
 			// Create inventory for the product
-			inventory := coffeeshop.Inventory{
+			inventory := Inventory{
 				ProductID: product.ID,
-				Stock:     100,    // Example stock
-				Size:      "12oz", // Example size
-				Price:     15.00,  // Example price
+				Stock:     100,   // Example stock
+				Price:     15.00, // Example price
 			}
 
 			inventoryID := uuid.New().String()
 			_, err = s.db.Exec(`
 				INSERT INTO inventory (id, product_id, stock, sizes, price)
 				VALUES (?, ?, ?, ?, ?)
-			`, inventoryID, inventory.ProductID, inventory.Stock, inventory.Size, inventory.Price)
+			`, inventoryID, inventory.ProductID, inventory.Stock, inventory.Sizes, inventory.Price)
 
 			if err != nil {
 				log.Println("Error inserting inventory data:", err)
