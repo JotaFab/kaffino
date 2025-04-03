@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 interface Product {
   id: string;
   code: string;
-  images: string[];
+  images: string;
   discount: number;
   title: string;
   description: string;
@@ -53,7 +53,7 @@ export const Products: React.FC = () => {
               <img
                 alt={`Product image with placeholder text '${product.title}'`}
                 className="w-full h-64 object-cover"
-                src={product.images[0]}
+                src={product.images}
               />
               <div className="p-4">
                 <h3 className="text-xl font-semibold text-sepia mb-2">

@@ -17,7 +17,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?)
 
 type CreateProductParams struct {
 	ID          string
-	Code        sql.NullString
+	Code        string
 	Images      sql.NullString
 	Title       string
 	Description sql.NullString
@@ -196,7 +196,7 @@ UPDATE products SET code = ?, images = ?, title = ?, description = ?, updated_at
 `
 
 type UpdateProductParams struct {
-	Code        sql.NullString
+	Code        string
 	Images      sql.NullString
 	Title       string
 	Description sql.NullString

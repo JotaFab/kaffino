@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS products (
     id VARCHAR(36) PRIMARY KEY,
-    code VARCHAR(255) UNIQUE,
+    code VARCHAR(255) UNIQUE NOT NULL,
     images TEXT,
     title VARCHAR(255) NOT NULL,
     description TEXT,

@@ -43,7 +43,7 @@ type OrderItem struct {
 
 type Product struct {
 	ID          string
-	Code        sql.NullString
+	Code        string
 	Images      sql.NullString
 	Title       string
 	Description sql.NullString

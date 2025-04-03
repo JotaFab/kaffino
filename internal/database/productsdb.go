@@ -8,13 +8,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/uuid"
 )
 
 // Example CreateProduct using sqlc generated code
 func (s *service) CreateProduct(ctx context.Context, product *Product) error {
 	params := CreateProductParams{
-		ID:          uuid.New().String(),
+		ID:          product.ID,
 		Code:        product.Code,
 		Images:      product.Images,
 		Title:       product.Title,
@@ -57,7 +56,7 @@ func (s *service) GetProduct(ctx context.Context, id string) (*Product, error) {
 // ListProducts retrieves all products from the database.
 func (s *service) ListProducts(ctx context.Context) ([]*Product, error) {
 	query := `
-		SELECT id, images, title, description, created_at, updated_at
+		SELECT id, code, images, title, description
 		FROM products
 		LIMIT 10
 	`
@@ -72,8 +71,7 @@ func (s *service) ListProducts(ctx context.Context) ([]*Product, error) {
 	for rows.Next() {
 		product := &Product{}
 
-		err := rows.Scan(&product.ID, &product.Images, &product.Title, &product.Description,
-			&product.CreatedAt, &product.UpdatedAt)
+		err := rows.Scan(&product.ID, &product.Code, &product.Images, &product.Title, &product.Description)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning product: %w", err)
 		}
@@ -94,7 +92,7 @@ func (s *service) UpdateProduct(ctx context.Context, product *Product) error {
 	if err != nil {
 		return fmt.Errorf("error marshaling images: %w", err)
 	}
-
+	product.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
 	query := `
 		UPDATE products
 		SET code = ?, images = ?, title = ?, description = ?,  updated_at = ?

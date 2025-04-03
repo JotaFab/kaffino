@@ -46,10 +46,7 @@ func (s *service) populateproductsTable() error {
 		// Define products
 		products := []Product{
 			{
-				Code: sql.NullString{
-					String: "BEAN001",
-					Valid:  true, // Set Valid to true since you have a value
-				},
+				Code: "BEAN001",
 				Images: sql.NullString{
 					String: "whole_bean1.jpg, whole_bean2.jpg",
 					Valid:  true,
@@ -61,10 +58,7 @@ func (s *service) populateproductsTable() error {
 				},
 			},
 			{
-				Code: sql.NullString{
-					String: "DRINK001",
-					Valid:  true,
-				},
+				Code: "DRINK001",
 				Images: sql.NullString{
 					String: "cappuccino1.jpg, cappuccino2.jpg",
 					Valid:  true,
@@ -75,10 +69,7 @@ func (s *service) populateproductsTable() error {
 					Valid:  true},
 			},
 			{
-				Code: sql.NullString{
-					String: "BLEND002",
-					Valid:  true,
-				},
+				Code: "BLEND002",
 				Images: sql.NullString{
 					String: "signature_blend1.jpg, signature_blend2.jpg",
 					Valid:  true,
@@ -89,10 +80,7 @@ func (s *service) populateproductsTable() error {
 					Valid:  true},
 			},
 			{
-				Code: sql.NullString{
-					String: "ACC001",
-					Valid:  true,
-				},
+				Code: "ACC001",
 				Images: sql.NullString{
 					String: "french_press1.jpg, french_press2.jpg",
 					Valid:  true,
@@ -103,10 +91,7 @@ func (s *service) populateproductsTable() error {
 					Valid:  true},
 			},
 			{
-				Code: sql.NullString{
-					String: "GRIND001",
-					Valid:  true,
-				},
+				Code: "GRIND001",
 				Images: sql.NullString{
 					String: "coffee_grinder1.jpg, coffee_grinder2.jpg",
 					Valid:  true,
@@ -121,6 +106,7 @@ func (s *service) populateproductsTable() error {
 
 		// Insert products using CreateProduct method
 		for _, product := range products {
+			product.ID = uuid.New().String()
 			err := s.CreateProduct(context.Background(), &product)
 			if err != nil {
 				log.Println("Error inserting product data:", err)
@@ -129,16 +115,16 @@ func (s *service) populateproductsTable() error {
 
 			// Create inventory for the product
 			inventory := Inventory{
+				ID:        uuid.New().String(),
 				ProductID: product.ID,
 				Stock:     100,   // Example stock
 				Price:     15.00, // Example price
 			}
 
-			inventoryID := uuid.New().String()
 			_, err = s.db.Exec(`
 				INSERT INTO inventory (id, product_id, stock, sizes, price)
 				VALUES (?, ?, ?, ?, ?)
-			`, inventoryID, inventory.ProductID, inventory.Stock, inventory.Sizes, inventory.Price)
+			`, inventory.ID, inventory.ProductID, inventory.Stock, inventory.Sizes, inventory.Price)
 
 			if err != nil {
 				log.Println("Error inserting inventory data:", err)
